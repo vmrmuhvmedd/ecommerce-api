@@ -1,6 +1,8 @@
 const cors = require('cors');
 const logger = require('../utilities/logger.util');
 const AppError = require('../utilities/app.error.util');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')

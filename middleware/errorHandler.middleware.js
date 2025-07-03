@@ -9,6 +9,15 @@ const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
     err.status = err.status || responsesStatus.ERROR;
 
+    if (err.code === 11000) {
+        const duplicatedField = Object.keys(err.keyValue)[0];
+        const duplicatedValue = err.keyValue[duplicatedField];
+        return res.status(400).json({
+            status: 'fail',
+            message: `${duplicatedField} "${duplicatedValue}" already exists.`
+        });
+    }
+
     if (err.isOperational) {
         return res.status(err.statusCode).json({
             status: err.status,
