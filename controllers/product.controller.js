@@ -49,7 +49,7 @@ const createProduct = async (req, res, next) => {
         };
 
         const product = await Product.create(productData);
-        
+
         logger.info(`CreateProduct | Created successfully | ID: ${product._id}`);
         return sendSuccess(res, product, 'Product created successfully', STATUS_CODES.CREATED);
     } catch (err) {
@@ -116,37 +116,50 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
+        const productId = req.params.id;
         const updates = req.body;
-        if (req.files?.mainImage) {
-            updates.mainImage = req.files.mainImage[0].filename;
-        }
 
-        if (req.files?.images) {
-            updates.images = req.files.images.map(file => file.filename);
-        }
-
-        if (updates.variants) {
-            updates.variants = JSON.parse(updates.variants);
-        }
-
-        const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id,
-            updates,
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedProduct) {
-            logger.warn(`UpdateProduct | Not found | ID: ${req.params.id}`);
+        const product = await Product.findById(productId);
+        if (!product) {
+            logger.warn(`UpdateProduct | Not found | ID: ${productId}`);
             return next(new AppError('Product not found', STATUS_CODES.NOT_FOUND));
         }
 
-        logger.info(`UpdateProduct | Updated | ID: ${updatedProduct._id}`);
-        return sendSuccess(res, updatedProduct, 'Product updated successfully', STATUS_CODES.OK);
+        if (updates.deletedImages) {
+            const imagesToDelete = JSON.parse(updates.deletedImages);
+            product.images = product.images.filter(img => !imagesToDelete.includes(img));
+        }
+
+        if (req.files?.mainImage) {
+            product.mainImage = req.files.mainImage[0].filename;
+        }
+
+        if (req.files?.images) {
+            const newImages = req.files.images.map(file => file.filename);
+            product.images.push(...newImages);
+        }
+
+        product.name = updates.name || product.name;
+        product.description = updates.description || product.description;
+        product.gender = updates.gender || product.gender;
+        product.category = updates.category || product.category;
+        product.brand = updates.brand || product.brand;
+
+        if (updates.variants) {
+            product.variants = JSON.parse(updates.variants);
+        }
+
+        await product.save();
+
+        logger.info(`UpdateProduct | Updated successfully | ID: ${product._id}`);
+        return sendSuccess(res, product, 'Product updated successfully', STATUS_CODES.OK);
+
     } catch (err) {
         logger.error(`UpdateProduct | ${err.message}`, err);
-        next(err);
+        next(new AppError('Failed to update product', STATUS_CODES.INTERNAL_SERVER_ERROR));
     }
 };
+
 
 const softDeleteProduct = async (req, res, next) => {
     try {

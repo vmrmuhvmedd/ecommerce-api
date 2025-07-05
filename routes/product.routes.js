@@ -42,7 +42,7 @@ router.post(
     authorize('admin'),
     upload.fields([
         { name: 'mainImage', maxCount: 1 },
-        { name: 'images', maxCount: 5 }
+        { name: 'images', maxCount: 20 }
     ]),
     productController.createProduct
 );
@@ -60,7 +60,7 @@ router.put(
     authorize('admin'),
     upload.fields([
         { name: 'mainImage', maxCount: 1 },
-        { name: 'images', maxCount: 5 }
+        { name: 'images', maxCount: 20 }
     ]),
     productController.updateProduct
 );

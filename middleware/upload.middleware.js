@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         try {
             const folder = req.uploadFolder || 'products';
-            const uploadPath = path.join(__dirname, '..', 'uploads', folder); // خليها منظمة
+            const uploadPath = path.join(__dirname, '..', 'uploads', folder);
 
             if (!fs.existsSync(uploadPath)) {
                 fs.mkdirSync(uploadPath, { recursive: true });
