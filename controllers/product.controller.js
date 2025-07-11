@@ -60,7 +60,7 @@ const createProduct = async (req, res, next) => {
 
 const getAllProducts = async (req, res, next) => {
     try {
-        const query = req.baseQuery.where({ isAvailable: true });
+        const query = req.baseQuery ? req.baseQuery.where({ isAvailable: true }) : Product.find({ isAvailable: true });
 
         const products = await query.populate([
             { path: 'brand', select: 'name' },
@@ -85,6 +85,7 @@ const getAllProducts = async (req, res, next) => {
         next(err);
     }
 };
+
 
 const getProductById = async (req, res, next) => {
     try {

@@ -17,12 +17,19 @@ const createOne = (Model) => async (req, res, next) => {
 
 const getAll = (Model) => async (req, res, next) => {
     try {
-        const docs = await Model.find({});
+        let filter = {};
+
+        if (!req.user || req.user.role !== 'admin') {
+            filter.isActive = true;
+        }
+
+        const docs = await Model.find(filter);
+
         logger.info(`GetAll | ${Model.modelName} | Count: ${docs.length}`);
         return sendSuccess(res, docs, 'All items retrieved successfully', STATUS_CODES.OK);
     } catch (err) {
         logger.error(`GetAll | ${Model.modelName} | ${err.message}`, err);
-        next(err)
+        next(err);
     }
 };
 

@@ -8,7 +8,7 @@ module.exports = (model) => async (req, res, next) => {
   const sortObj = { [sortBy]: order };
 
   try {
-    const baseQuery = req.baseQuery || model.find();
+    let baseQuery = req.baseQuery || model.find();
 
     const [data, total] = await Promise.all([
       baseQuery.clone().skip(skip).limit(limit).sort(sortObj).exec(),
@@ -31,6 +31,7 @@ module.exports = (model) => async (req, res, next) => {
 
     next();
   } catch (err) {
+    console.error('Pagination Middleware Error:', err);
     next(err);
   }
 };

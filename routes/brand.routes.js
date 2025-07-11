@@ -8,7 +8,7 @@ const authorize = require('../middleware/role.middleware');
 router
     .route('/')
     .post(authenticate, authorize('admin'), controller.createOne(Brand))
-    .get(controller.getAll(Brand));
+    .get(authenticate.optional, controller.getAll(Brand));
 
 router
     .route('/:id')
